@@ -19,6 +19,7 @@ struct Vertex {
 class Mesh {
 public:
     static Mesh fromVertices(std::span<const Vertex> vertices);
+    static Mesh fromVertices(std::span<const Vertex> vertices, std::span<const uint32_t> indices);
     static Mesh load(const std::string& path);
 
     uint32_t vertexCount() const;

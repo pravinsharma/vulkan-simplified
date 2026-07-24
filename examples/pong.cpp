@@ -24,7 +24,36 @@ static Mesh makeBox(float w, float h, float d) {
         {{-hd, hh,-hw},{0, 1,0},{0,0}},{{ hd, hh,-hw},{0, 1,0},{1,0}},
         {{ hd, hh, hw},{0, 1,0},{1,1}},{{-hd, hh, hw},{0, 1,0},{0,1}},
     }};
-    return Mesh::fromVertices(std::span<const Vertex>(verts.data(), verts.size()));
+    std::array<uint32_t, 36> indices{{
+        0,1,2, 2,3,0,
+        4,5,6, 6,7,4,
+        8,9,10, 10,11,8,
+        12,13,14, 14,15,12,
+        16,17,18, 18,19,16,
+        20,21,22, 22,23,20,
+    }};
+    return Mesh::fromVertices(std::span<const Vertex>(verts.data(), verts.size()), std::span<const uint32_t>(indices.data(), indices.size()));
+}
+
+static Mesh makeCircle(float radius, int segments = 48) {
+    std::vector<Vertex> verts;
+    std::vector<uint32_t> indices;
+
+    verts.push_back({{0.0f, 0.0f, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f, 0.5f}});
+    for (int i = 0; i <= segments; ++i) {
+        float a = (float)i / (float)segments * 2.0f * 3.14159265359f;
+        float x = std::cos(a) * radius;
+        float y = std::sin(a) * radius;
+        verts.push_back({{x, y, 0.0f}, {0.0f, 0.0f, 1.0f}, {0.5f + 0.5f * std::cos(a), 0.5f + 0.5f * std::sin(a)}});
+    }
+
+    for (int i = 1; i <= segments; ++i) {
+        indices.push_back(0);
+        indices.push_back((uint32_t)i);
+        indices.push_back((uint32_t)(i + 1));
+    }
+
+    return Mesh::fromVertices(std::span<const Vertex>(verts.data(), verts.size()), std::span<const uint32_t>(indices.data(), indices.size()));
 }
 
 struct Paddle {
@@ -69,7 +98,7 @@ int main() {
             .build();
 
         Mesh paddleMesh = makeBox(PADDLE_W, PADDLE_H, 0.2f);
-        Mesh ballMesh   = makeBox(BALL_R * 2.0f, BALL_R * 2.0f, BALL_R * 2.0f);
+        Mesh ballMesh   = makeCircle(BALL_R, 48);
 
         Scene& scene = app.scene();
 
@@ -195,15 +224,15 @@ int main() {
             scene.get(ball.id).transform().position = {ball.x, ball.y, ball.z};
 
             frame.setCamera(cam);
-            frame.clear(Color::fromHex(0x101018FF), ClearFlags::Color | ClearFlags::Depth);
+            frame.clear(Color(0.2f, 0.2f, 0.2f, 1.0f), ClearFlags::Color | ClearFlags::Depth);
 
             std::array<DrawCall, 3> calls;
             calls[0].entity = left.id;
-            calls[0].tintColor = Color::fromRGB(0.2f, 0.6f, 1.0f);
+            calls[0].tintColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
             calls[1].entity = right.id;
-            calls[1].tintColor = Color::fromRGB(1.0f, 0.3f, 0.3f);
+            calls[1].tintColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
             calls[2].entity = ball.id;
-            calls[2].tintColor = Color::fromRGB(1.0f, 1.0f, 1.0f);
+            calls[2].tintColor = Color(1.0f, 1.0f, 1.0f, 1.0f);
             frame.draw(calls);
         });
 

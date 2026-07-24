@@ -85,6 +85,14 @@ Mesh Mesh::fromVertices(std::span<const Vertex> vertices) {
     return mesh;
 }
 
+Mesh Mesh::fromVertices(std::span<const Vertex> vertices, std::span<const uint32_t> indices) {
+    Mesh mesh;
+    mesh.pimpl = std::make_unique<Impl>();
+    mesh.pimpl->vertices.assign(vertices.begin(), vertices.end());
+    mesh.pimpl->indices.assign(indices.begin(), indices.end());
+    return mesh;
+}
+
 Mesh Mesh::load(const std::string& path) {
     std::ifstream file(path);
     if (!file) {
