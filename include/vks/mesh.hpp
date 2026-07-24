@@ -28,6 +28,13 @@ public:
     std::span<const Vertex> vertices() const;
     std::span<const uint32_t> indices() const;
 
+    Mesh() = default;
+    ~Mesh();
+    Mesh(Mesh&&) noexcept = default;
+    Mesh& operator=(Mesh&&) noexcept = default;
+    Mesh(const Mesh&) = delete;
+    Mesh& operator=(const Mesh&) = delete;
+
 private:
     struct Impl;
     std::unique_ptr<Impl> pimpl;

@@ -1,50 +1,28 @@
 #include <vks/vks.hpp>
 #include <cmath>
 #include <algorithm>
+#include <vector>
+#include <array>
 
 using namespace vks;
 
-static Mesh makeQuad(float w, float h) {
-    float hw = w * 0.5f;
-    float hh = h * 0.5f;
-    return Mesh::fromVertices({
-        {{-hw, -hh, 0.0f}, {0, 0, 1}, {0, 0}},
-        {{ hw, -hh, 0.0f}, {0, 0, 1}, {1, 0}},
-        {{ hw,  hh, 0.0f}, {0, 0, 1}, {1, 1}},
-        {{-hw,  hh, 0.0f}, {0, 0, 1}, {0, 1}},
-    });
-}
-
 static Mesh makeBox(float w, float h, float d) {
-    float hw = w * 0.5f;
-    float hh = h * 0.5f;
-    float hd = d * 0.5f;
-    return Mesh::fromVertices({
-        {{-hw, -hh, -hd}, {0, 0, -1}, {0, 0}},
-        {{ hw, -hh, -hd}, {0, 0, -1}, {1, 0}},
-        {{ hw,  hh, -hd}, {0, 0, -1}, {1, 1}},
-        {{-hw,  hh, -hd}, {0, 0, -1}, {0, 1}},
-        {{-hw, -hh,  hd}, {0, 0,  1}, {0, 0}},
-        {{ hw, -hh,  hd}, {0, 0,  1}, {1, 0}},
-        {{ hw,  hh,  hd}, {0, 0,  1}, {1, 1}},
-        {{-hw,  hh,  hd}, {0, 0,  1}, {0, 1}},
-        {{-hw, -hd, -hh}, {-1, 0, 0}, {0, 0}},
-        {{-hw, -hd,  hh}, {-1, 0, 0}, {1, 0}},
-        {{-hw,  hd,  hh}, {-1, 0, 0}, {1, 1}},
-        {{-hw,  hd, -hh}, {-1, 0, 0}, {0, 1}},
-        {{ hw, -hd, -hh}, {1, 0, 0}, {0, 0}},
-        {{ hw, -hd,  hh}, {1, 0, 0}, {1, 0}},
-        {{ hw,  hd,  hh}, {1, 0, 0}, {1, 1}},
-        {{ hw,  hd, -hh}, {1, 0, 0}, {0, 1}},
-        {{-hd, -hh, -hw}, {0, -1, 0}, {0, 0}},
-        {{ hd, -hh, -hw}, {0, -1, 0}, {1, 0}},
-        {{ hd, -hh,  hw}, {0, -1, 0}, {1, 1}},
-        {{-hd, -hh,  hw}, {0, -1, 0}, {0, 1}},
-        {{-hd,  hh, -hw}, {0, 1, 0}, {0, 0}},
-        {{ hd,  hh, -hw}, {0, 1, 0}, {1, 0}},
-        {{ hd,  hh,  hw}, {0, 1, 0}, {1, 1}},
-        {{-hd,  hh,  hw}, {0, 1, 0}, {0, 1}},
-    });
+    float hw = w * 0.5f, hh = h * 0.5f, hd = d * 0.5f;
+    std::array<Vertex, 24> verts{{
+        {{-hw,-hh,-hd},{0,0,-1},{0,0}},{{ hw,-hh,-hd},{0,0,-1},{1,0}},
+        {{ hw, hh,-hd},{0,0,-1},{1,1}},{{-hw, hh,-hd},{0,0,-1},{0,1}},
+        {{-hw,-hh, hd},{0,0, 1},{0,0}},{{ hw,-hh, hd},{0,0, 1},{1,0}},
+        {{ hw, hh, hd},{0,0, 1},{1,1}},{{-hw, hh, hd},{0,0, 1},{0,1}},
+        {{-hw,-hd,-hh},{-1,0,0},{0,0}},{{-hw,-hd, hh},{-1,0,0},{1,0}},
+        {{-hw, hd, hh},{-1,0,0},{1,1}},{{-hw, hd,-hh},{-1,0,0},{0,1}},
+        {{ hw,-hd,-hh},{ 1,0,0},{0,0}},{{ hw,-hd, hh},{ 1,0,0},{1,0}},
+        {{ hw, hd, hh},{ 1,0,0},{1,1}},{{ hw, hd,-hh},{ 1,0,0},{0,1}},
+        {{-hd,-hh,-hw},{0,-1,0},{0,0}},{{ hd,-hh,-hw},{0,-1,0},{1,0}},
+        {{ hd,-hh, hw},{0,-1,0},{1,1}},{{-hd,-hh, hw},{0,-1,0},{0,1}},
+        {{-hd, hh,-hw},{0, 1,0},{0,0}},{{ hd, hh,-hw},{0, 1,0},{1,0}},
+        {{ hd, hh, hw},{0, 1,0},{1,1}},{{-hd, hh, hw},{0, 1,0},{0,1}},
+    }};
+    return Mesh::fromVertices(std::span<const Vertex>(verts.data(), verts.size()));
 }
 
 struct Paddle {
@@ -80,15 +58,15 @@ int main() {
     App app({.title = "Pong", .width = 1280, .height = 720, .vsync = true});
 
     Material solid = Material::builder()
-        .withVertexShader("shaders/solid.vert")
-        .withFragmentShader("shaders/solid.frag")
+        .withVertexShader("shaders/pong.vert")
+        .withFragmentShader("shaders/pong.frag")
         .withCullMode(CullMode::Off)
         .withDepthTest(true)
         .withDepthWrite(true)
         .build();
 
     Mesh paddleMesh = makeBox(PADDLE_W, PADDLE_H, 0.2f);
-    Mesh ballMesh = makeBox(BALL_R * 2.0f, BALL_R * 2.0f, BALL_R * 2.0f);
+    Mesh ballMesh   = makeBox(BALL_R * 2.0f, BALL_R * 2.0f, BALL_R * 2.0f);
 
     Scene& scene = app.scene();
 
@@ -211,20 +189,14 @@ int main() {
         frame.setCamera(cam);
         frame.clear(Color::fromHex(0x101018FF), ClearFlags::Color | ClearFlags::Depth);
 
-        DrawCall leftCall;
-        leftCall.entity = left.id;
-        leftCall.tintColor = Color::fromRGB(0.2f, 0.6f, 1.0f);
-        frame.draw(leftCall);
-
-        DrawCall rightCall;
-        rightCall.entity = right.id;
-        rightCall.tintColor = Color::fromRGB(1.0f, 0.3f, 0.3f);
-        frame.draw(rightCall);
-
-        DrawCall ballCall;
-        ballCall.entity = ball.id;
-        ballCall.tintColor = Color::fromRGB(1.0f, 1.0f, 1.0f);
-        frame.draw(ballCall);
+        std::array<DrawCall, 3> calls;
+        calls[0].entity = left.id;
+        calls[0].tintColor = Color::fromRGB(0.2f, 0.6f, 1.0f);
+        calls[1].entity = right.id;
+        calls[1].tintColor = Color::fromRGB(1.0f, 0.3f, 0.3f);
+        calls[2].entity = ball.id;
+        calls[2].tintColor = Color::fromRGB(1.0f, 1.0f, 1.0f);
+        frame.draw(calls);
     });
 
     return 0;

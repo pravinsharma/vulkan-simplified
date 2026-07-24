@@ -327,6 +327,10 @@ struct VulkanContext::Impl {
     VkImage depthImage = VK_NULL_HANDLE;
     VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
     VkImageView depthImageView = VK_NULL_HANDLE;
+
+    uint32_t current_frame = 0;
+    uint32_t current_image_index = 0;
+    VkCommandBuffer current_command_buffer = VK_NULL_HANDLE;
 };
 
 VulkanContext::VulkanContext(SdlWindow& window, bool headless, bool enable_validation)
@@ -793,6 +797,81 @@ VkFormat VulkanContext::findDepthFormat(VkPhysicalDevice phys) {
     }
     throw std::runtime_error("No suitable depth format found");
     return VK_FORMAT_UNDEFINED;
+}
+
+uint32_t VulkanContext::currentFrame() const {
+    return impl_ ? impl_->current_frame : 0;
+}
+
+VkCommandBuffer VulkanContext::beginFrame() {
+    if (!impl_) return VK_NULL_HANDLE;
+
+    if (!impl_->headless && impl_->swapchain) {
+        uint32_t idx = 0;
+        VkResult r = vkAcquireNextImageKHR(impl_->device, impl_->swapchain, UINT64_MAX,
+                                            VK_NULL_HANDLE, VK_NULL_HANDLE, &idx);
+        if (r == VK_SUCCESS || r == VK_SUBOPTIMAL_KHR) {
+            impl_->current_image_index = idx;
+        }
+    }
+
+    VkCommandBufferAllocateInfo ai{};
+    ai.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+    ai.commandPool = impl_->graphics_cmd_pool;
+    ai.commandBufferCount = 1;
+    ai.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+
+    VkCommandBuffer cb = VK_NULL_HANDLE;
+    vkAllocateCommandBuffers(impl_->device, &ai, &cb);
+
+    VkCommandBufferBeginInfo bi{};
+    bi.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+    vkBeginCommandBuffer(cb, &bi);
+
+    impl_->current_command_buffer = cb;
+    return cb;
+}
+
+VkCommandBuffer VulkanContext::currentCommandBuffer() const {
+    return impl_ ? impl_->current_command_buffer : VK_NULL_HANDLE;
+}
+
+void VulkanContext::endFrame() {
+    if (!impl_ || impl_->current_command_buffer == VK_NULL_HANDLE) return;
+
+    vkEndCommandBuffer(impl_->current_command_buffer);
+
+    VkSubmitInfo si{};
+    si.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+    si.commandBufferCount = 1;
+    si.pCommandBuffers = &impl_->current_command_buffer;
+
+    vkQueueSubmit(impl_->graphics_queue, 1, &si, VK_NULL_HANDLE);
+    vkQueueWaitIdle(impl_->graphics_queue);
+
+    uint32_t imageIndex = impl_->current_image_index;
+    if (imageIndex < impl_->swapchain_images.size()) {
+        present(imageIndex);
+    }
+
+    impl_->current_command_buffer = VK_NULL_HANDLE;
+    impl_->current_frame++;
+}
+
+VkFramebuffer VulkanContext::currentFramebuffer() const {
+    if (!impl_ || impl_->swapchainFramebuffers.empty()) return VK_NULL_HANDLE;
+    uint32_t idx = impl_->current_image_index;
+    if (idx >= impl_->swapchainFramebuffers.size()) return VK_NULL_HANDLE;
+    return impl_->swapchainFramebuffers[idx];
+}
+
+void VulkanContext::updateDescriptorSets(std::span<const VkWriteDescriptorSet> writes) {
+    if (!impl_) return;
+    vkUpdateDescriptorSets(impl_->device, static_cast<uint32_t>(writes.size()), writes.data(), 0, nullptr);
+}
+
+VkPipelineCache VulkanContext::pipelineCache() const {
+    return impl_ ? impl_->pipeline_cache : VK_NULL_HANDLE;
 }
 
 }

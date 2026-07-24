@@ -31,6 +31,9 @@ endif()
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/docs/CMakeLists.txt")
     add_subdirectory(docs)
 endif()
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/examples/CMakeLists.txt")
+    add_subdirectory(examples)
+endif()
 
 set_target_properties(vks PROPERTIES
     VERSION ${PROJECT_VERSION}

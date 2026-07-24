@@ -76,6 +76,8 @@ void parseOBJ(std::istream& in, std::vector<Vertex>& outVertices, std::vector<ui
 
 }
 
+Mesh::~Mesh() = default;
+
 Mesh Mesh::fromVertices(std::span<const Vertex> vertices) {
     Mesh mesh;
     mesh.pimpl = std::make_unique<Impl>();
