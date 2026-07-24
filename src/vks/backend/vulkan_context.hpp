@@ -60,6 +60,8 @@ public:
     void updateDescriptorSets(std::span<VkWriteDescriptorSet> writes);
 
     VkPipelineCache pipelineCache() const;
+    VkImage depthImage() const;
+    VkImageView depthImageView() const;
     VkDescriptorSetLayout createDescriptorSetLayout(const VkDescriptorSetLayoutCreateInfo& createInfo);
     VkDescriptorSetLayout createDescriptorSetLayout(const VkDescriptorSetLayoutBinding* bindings, uint32_t bindingCount);
     VkPipelineLayout createPipelineLayout(const VkDescriptorSetLayout* setLayouts, uint32_t setCount, const VkPushConstantRange* pushRanges, uint32_t pushCount);
@@ -85,6 +87,10 @@ public:
 
     struct Impl;
     Impl* getImpl() const { return impl_.get(); }
+
+private:
+    void createDepthResources();
+    void createFramebuffers();
 
 private:
     std::unique_ptr<Impl> impl_;

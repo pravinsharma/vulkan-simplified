@@ -87,8 +87,8 @@ GpuMesh ResourceManager::uploadMesh(const class Mesh& mesh) {
     if (vSize > 0) {
         VkDeviceMemory vMem = VK_NULL_HANDLE;
         gpu.vertexBuffer.buffer = ctx.createBuffer(vSize,
-            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, vMem);
+            VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, vMem);
         gpu.vertexBuffer.memory = vMem;
         gpu.vertexBuffer.size = vSize;
         void* mapped = ctx.mapBuffer(gpu.vertexBuffer.buffer, vMem, vSize);
@@ -100,8 +100,8 @@ GpuMesh ResourceManager::uploadMesh(const class Mesh& mesh) {
     if (iSize > 0) {
         VkDeviceMemory iMem = VK_NULL_HANDLE;
         gpu.indexBuffer.buffer = ctx.createBuffer(iSize,
-            VK_BUFFER_USAGE_INDEX_BUFFER_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT,
-            VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT, iMem);
+            VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+            VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, iMem);
         gpu.indexBuffer.memory = iMem;
         gpu.indexBuffer.size = iSize;
         void* mapped = ctx.mapBuffer(gpu.indexBuffer.buffer, iMem, iSize);
@@ -128,10 +128,18 @@ GpuBuffer ResourceManager::createUniformBuffer(VkDeviceSize size) {
 }
 
 void ResourceManager::destroyBuffer(GpuBuffer& buf) {
-    if (buf.memory && pimpl) {
-        pimpl->ctx.unmapBuffer(buf.memory);
+    if (!pimpl) return;
+    auto& ctx = pimpl->ctx;
+    if (buf.buffer) {
+        vkDestroyBuffer(ctx.device(), buf.buffer, nullptr);
+        buf.buffer = VK_NULL_HANDLE;
     }
-    buf = GpuBuffer{};
+    if (buf.memory) {
+        vkFreeMemory(ctx.device(), buf.memory, nullptr);
+        buf.memory = VK_NULL_HANDLE;
+    }
+    buf.size = 0;
+    buf.offset = 0;
 }
 
 void ResourceManager::destroyFrameData() {

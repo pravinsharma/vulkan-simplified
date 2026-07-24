@@ -66,9 +66,6 @@ struct ForwardRenderer::Impl {
     VkDescriptorSetLayout setLayout = VK_NULL_HANDLE;
     VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 
-    VkImage depthImage = VK_NULL_HANDLE;
-    VkDeviceMemory depthImageMemory = VK_NULL_HANDLE;
-    VkImageView depthImageView = VK_NULL_HANDLE;
     VkFormat depthFormat = VK_FORMAT_UNDEFINED;
 
     GpuBuffer perFrameUbo;
@@ -110,6 +107,7 @@ bool ForwardRenderer::init(const Config& cfg) {
     dpCI.maxSets = 64;
     dpCI.poolSizeCount = 1;
     dpCI.pPoolSizes = &poolSize;
+    dpCI.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
 
     if (vkCreateDescriptorPool(dev, &dpCI, nullptr, &pimpl->descPool) != VK_SUCCESS) return false;
 
@@ -139,36 +137,6 @@ bool ForwardRenderer::init(const Config& cfg) {
     VkExtent2D extent = ctx_->swapchainExtent();
     pimpl->depthFormat = vks::backend::findDepthFormat(ctx_->physicalDevice());
 
-    VkImageCreateInfo depthCI{};
-    depthCI.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    depthCI.imageType = VK_IMAGE_TYPE_2D;
-    depthCI.format = pimpl->depthFormat;
-    depthCI.extent = {extent.width, extent.height, 1};
-    depthCI.mipLevels = 1;
-    depthCI.arrayLayers = 1;
-    depthCI.samples = VK_SAMPLE_COUNT_1_BIT;
-    depthCI.tiling = VK_IMAGE_TILING_OPTIMAL;
-    depthCI.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    depthCI.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-    if (vkCreateImage(dev, &depthCI, nullptr, &pimpl->depthImage) != VK_SUCCESS) return false;
-
-    VkMemoryRequirements depthReqs;
-    vkGetImageMemoryRequirements(dev, pimpl->depthImage, &depthReqs);
-
-    VkMemoryAllocateInfo depthAI{};
-    depthAI.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    depthAI.allocationSize = depthReqs.size;
-    depthAI.memoryTypeIndex = vks::backend::findMemoryType(
-        ctx_->physicalDevice(), depthReqs.memoryTypeBits,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    if (vkAllocateMemory(dev, &depthAI, nullptr, &pimpl->depthImageMemory) != VK_SUCCESS) return false;
-    vkBindImageMemory(dev, pimpl->depthImage, pimpl->depthImageMemory, 0);
-
-    pimpl->depthImageView = ctx_->createImageView(
-        pimpl->depthImage, pimpl->depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-
     return true;
 }
 
@@ -183,11 +151,9 @@ void ForwardRenderer::destroy() {
     pimpl->materials.clear();
     pimpl->meshCache.clear();
 
+    pimpl->resourceManager->destroyBuffer(pimpl->perFrameUbo);
     if (pimpl->perFrameDescriptorSet) vkFreeDescriptorSets(dev, pimpl->descPool, 1, &pimpl->perFrameDescriptorSet);
     if (pimpl->descPool) vkDestroyDescriptorPool(dev, pimpl->descPool, nullptr);
-    if (pimpl->depthImageView) vkDestroyImageView(dev, pimpl->depthImageView, nullptr);
-    if (pimpl->depthImage) vkDestroyImage(dev, pimpl->depthImage, nullptr);
-    if (pimpl->depthImageMemory) vkFreeMemory(dev, pimpl->depthImageMemory, nullptr);
 }
 
 MaterialHandle ForwardRenderer::registerMaterial(const Material& material) {
@@ -256,7 +222,7 @@ void ForwardRenderer::submitFrame(const FrameSubmitData& frameData) {
         barrier.newLayout = VK_IMAGE_LAYOUT_DEPTH_ATTACHMENT_OPTIMAL;
         barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
         barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-        barrier.image = pimpl->depthImage;
+        barrier.image = ctx_->depthImage();
         barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_DEPTH_BIT;
         barrier.subresourceRange.baseMipLevel = 0;
         barrier.subresourceRange.levelCount = 1;
@@ -371,40 +337,7 @@ void ForwardRenderer::submitFrame(const FrameSubmitData& frameData) {
 
 void ForwardRenderer::onResize(uint32_t width, uint32_t height) {
     if (!ctx_ || !ctx_->isValid()) return;
-    auto* dev = ctx_->device();
-    if (pimpl->depthImageView) vkDestroyImageView(dev, pimpl->depthImageView, nullptr);
-    if (pimpl->depthImage) vkDestroyImage(dev, pimpl->depthImage, nullptr);
-    if (pimpl->depthImageMemory) vkFreeMemory(dev, pimpl->depthImageMemory, nullptr);
-
-    VkImageCreateInfo depthCI{};
-    depthCI.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
-    depthCI.imageType = VK_IMAGE_TYPE_2D;
-    depthCI.format = pimpl->depthFormat;
-    depthCI.extent = {width, height, 1};
-    depthCI.mipLevels = 1;
-    depthCI.arrayLayers = 1;
-    depthCI.samples = VK_SAMPLE_COUNT_1_BIT;
-    depthCI.tiling = VK_IMAGE_TILING_OPTIMAL;
-    depthCI.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-    depthCI.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-
-    if (vkCreateImage(dev, &depthCI, nullptr, &pimpl->depthImage) != VK_SUCCESS) return;
-
-    VkMemoryRequirements depthReqs;
-    vkGetImageMemoryRequirements(dev, pimpl->depthImage, &depthReqs);
-
-    VkMemoryAllocateInfo depthAI{};
-    depthAI.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-    depthAI.allocationSize = depthReqs.size;
-    depthAI.memoryTypeIndex = vks::backend::findMemoryType(
-        ctx_->physicalDevice(), depthReqs.memoryTypeBits,
-        VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-
-    if (vkAllocateMemory(dev, &depthAI, nullptr, &pimpl->depthImageMemory) != VK_SUCCESS) return;
-    vkBindImageMemory(dev, pimpl->depthImage, pimpl->depthImageMemory, 0);
-
-    pimpl->depthImageView = ctx_->createImageView(
-        pimpl->depthImage, pimpl->depthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+    ctx_->recreateSwapchain();
 }
 
 }

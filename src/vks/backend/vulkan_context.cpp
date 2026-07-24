@@ -331,6 +331,7 @@ struct VulkanContext::Impl {
     uint32_t current_frame = 0;
     uint32_t current_image_index = 0;
     VkCommandBuffer current_command_buffer = VK_NULL_HANDLE;
+    VkSemaphore acquire_semaphore = VK_NULL_HANDLE;
 };
 
 VulkanContext::VulkanContext(SdlWindow& window, bool headless, bool enable_validation)
@@ -375,6 +376,10 @@ VulkanContext::VulkanContext(SdlWindow& window, bool headless, bool enable_valid
         impl_->transfer_cmd_pool = impl_->graphics_cmd_pool;
     }
 
+    VkSemaphoreCreateInfo semCI{};
+    semCI.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
+    vkCreateSemaphore(impl_->device, &semCI, nullptr, &impl_->acquire_semaphore);
+
     if (!headless) {
         int w = -1, h = -1;
         SDL_GetWindowSize(impl_->sdl_window, &w, &h);
@@ -407,6 +412,9 @@ VulkanContext::VulkanContext(SdlWindow& window, bool headless, bool enable_valid
 
         impl_->render_pass = build_render_pass(impl_->device, impl_->swapchain_format);
 
+        createDepthResources();
+        createFramebuffers();
+
         impl_->valid = true;
     } else {
         impl_->swapchain_format = VK_FORMAT_R8G8B8A8_UNORM;
@@ -434,6 +442,7 @@ VulkanContext::~VulkanContext() {
         if (impl_->descriptorSetLayout) vkDestroyDescriptorSetLayout(impl_->device, impl_->descriptorSetLayout, nullptr);
         if (impl_->pipeline_cache) vkDestroyPipelineCache(impl_->device, impl_->pipeline_cache, nullptr);
         if (impl_->render_pass) vkDestroyRenderPass(impl_->device, impl_->render_pass, nullptr);
+        if (impl_->acquire_semaphore) vkDestroySemaphore(impl_->device, impl_->acquire_semaphore, nullptr);
         if (impl_->depthImageView) vkDestroyImageView(impl_->device, impl_->depthImageView, nullptr);
         if (impl_->depthImage) vkDestroyImage(impl_->device, impl_->depthImage, nullptr);
         if (impl_->depthImageMemory) vkFreeMemory(impl_->device, impl_->depthImageMemory, nullptr);
@@ -469,6 +478,16 @@ bool VulkanContext::recreateSwapchain() {
         vkDestroySwapchainKHR(impl_->device, impl_->swapchain, nullptr);
         impl_->swapchain = VK_NULL_HANDLE;
     }
+    for (auto fb : impl_->swapchainFramebuffers) {
+        if (fb) vkDestroyFramebuffer(impl_->device, fb, nullptr);
+    }
+    impl_->swapchainFramebuffers.clear();
+    if (impl_->depthImageView) vkDestroyImageView(impl_->device, impl_->depthImageView, nullptr);
+    if (impl_->depthImage) vkDestroyImage(impl_->device, impl_->depthImage, nullptr);
+    if (impl_->depthImageMemory) vkFreeMemory(impl_->device, impl_->depthImageMemory, nullptr);
+    impl_->depthImageView = VK_NULL_HANDLE;
+    impl_->depthImage = VK_NULL_HANDLE;
+    impl_->depthImageMemory = VK_NULL_HANDLE;
     impl_->swapchain_images.clear();
 
     int w = -1, h = -1;
@@ -500,6 +519,10 @@ bool VulkanContext::recreateSwapchain() {
                                         impl_->swapchain_format, VK_IMAGE_ASPECT_COLOR_BIT, 1);
         impl_->swapchain_images.push_back(si);
     }
+
+    createDepthResources();
+    createFramebuffers();
+
     return true;
 }
 
@@ -799,6 +822,79 @@ VkFormat VulkanContext::findDepthFormat(VkPhysicalDevice phys) {
     return VK_FORMAT_UNDEFINED;
 }
 
+void VulkanContext::createDepthResources() {
+    if (!impl_ || impl_->headless) return;
+
+    auto* dev = device();
+    VkExtent2D extent = swapchainExtent();
+    VkFormat depthFormat = findDepthFormat(physicalDevice());
+
+    VkImageCreateInfo depthCI{};
+    depthCI.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
+    depthCI.imageType = VK_IMAGE_TYPE_2D;
+    depthCI.format = depthFormat;
+    depthCI.extent = {extent.width, extent.height, 1};
+    depthCI.mipLevels = 1;
+    depthCI.arrayLayers = 1;
+    depthCI.samples = VK_SAMPLE_COUNT_1_BIT;
+    depthCI.tiling = VK_IMAGE_TILING_OPTIMAL;
+    depthCI.usage = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+    depthCI.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+
+    if (vkCreateImage(dev, &depthCI, nullptr, &impl_->depthImage) != VK_SUCCESS) return;
+
+    VkMemoryRequirements depthReqs;
+    vkGetImageMemoryRequirements(dev, impl_->depthImage, &depthReqs);
+
+    VkMemoryAllocateInfo depthAI{};
+    depthAI.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
+    depthAI.allocationSize = depthReqs.size;
+    depthAI.memoryTypeIndex = findMemoryType(physicalDevice(), depthReqs.memoryTypeBits,
+                                             VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+
+    if (vkAllocateMemory(dev, &depthAI, nullptr, &impl_->depthImageMemory) != VK_SUCCESS) {
+        vkDestroyImage(dev, impl_->depthImage, nullptr);
+        impl_->depthImage = VK_NULL_HANDLE;
+        return;
+    }
+    vkBindImageMemory(dev, impl_->depthImage, impl_->depthImageMemory, 0);
+
+    impl_->depthImageView = createImageView(impl_->depthImage, depthFormat,
+                                            VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+}
+
+void VulkanContext::createFramebuffers() {
+    if (!impl_ || impl_->headless) return;
+
+    auto* dev = device();
+    VkExtent2D extent = swapchainExtent();
+
+    for (auto& si : impl_->swapchain_images) {
+        VkImageView attachments[] = {si.image_view, impl_->depthImageView};
+
+        VkFramebufferCreateInfo fbCI{};
+        fbCI.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+        fbCI.renderPass = impl_->render_pass;
+        fbCI.attachmentCount = 2;
+        fbCI.pAttachments = attachments;
+        fbCI.width = extent.width;
+        fbCI.height = extent.height;
+        fbCI.layers = 1;
+
+        VkFramebuffer fb = VK_NULL_HANDLE;
+        vkCreateFramebuffer(dev, &fbCI, nullptr, &fb);
+        impl_->swapchainFramebuffers.push_back(fb);
+    }
+}
+
+VkImageView VulkanContext::depthImageView() const {
+    return impl_ ? impl_->depthImageView : VK_NULL_HANDLE;
+}
+
+VkImage VulkanContext::depthImage() const {
+    return impl_ ? impl_->depthImage : VK_NULL_HANDLE;
+}
+
 uint32_t VulkanContext::currentFrame() const {
     return impl_ ? impl_->current_frame : 0;
 }
@@ -809,7 +905,7 @@ VkCommandBuffer VulkanContext::beginFrame() {
     if (!impl_->headless && impl_->swapchain) {
         uint32_t idx = 0;
         VkResult r = vkAcquireNextImageKHR(impl_->device, impl_->swapchain, UINT64_MAX,
-                                            VK_NULL_HANDLE, VK_NULL_HANDLE, &idx);
+                                            impl_->acquire_semaphore, VK_NULL_HANDLE, &idx);
         if (r == VK_SUCCESS || r == VK_SUBOPTIMAL_KHR) {
             impl_->current_image_index = idx;
         }
@@ -845,6 +941,12 @@ void VulkanContext::endFrame() {
     si.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
     si.commandBufferCount = 1;
     si.pCommandBuffers = &impl_->current_command_buffer;
+
+    VkPipelineStageFlags waitStage = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+    VkSemaphore waitSemaphores[] = {impl_->acquire_semaphore};
+    si.waitSemaphoreCount = 1;
+    si.pWaitSemaphores = waitSemaphores;
+    si.pWaitDstStageMask = &waitStage;
 
     vkQueueSubmit(impl_->graphics_queue, 1, &si, VK_NULL_HANDLE);
     vkQueueWaitIdle(impl_->graphics_queue);
