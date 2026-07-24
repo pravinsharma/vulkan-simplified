@@ -1,4 +1,4 @@
-#include "vulkan_simplified/types.hpp"
+#include "vks/types.hpp"
 
 #include <algorithm>
 #include <cstdint>

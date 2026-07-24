@@ -1,8 +1,8 @@
-#include "vulkan_simplified/scene_entity.hpp"
+#include "vks/scene_entity.hpp"
 
-#include "vulkan_simplified/material.hpp"
-#include "vulkan_simplified/mesh.hpp"
-#include "vulkan_simplified/types.hpp"
+#include "vks/material.hpp"
+#include "vks/mesh.hpp"
+#include "vks/types.hpp"
 
 #include <algorithm>
 #include <cstdint>

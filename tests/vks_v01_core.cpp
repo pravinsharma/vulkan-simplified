@@ -1,5 +1,5 @@
 #include <catch2/catch_test_macros.hpp>
-#include <vulkan_simplified/vulkan_simplified.hpp>
+#include <vks/vks.hpp>
 
 TEST_CASE("v0.1 types compile", "[compile]") {
     vks::Vec3 v{1.0f, 2.0f, 3.0f};

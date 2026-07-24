@@ -1,6 +1,6 @@
-#include "vulkan_simplified/material.hpp"
+#include "vks/material.hpp"
 
-#include "vulkan_simplified/texture.hpp"
+#include "vks/texture.hpp"
 
 #include <span>
 #include <stdexcept>

@@ -1,9 +1,9 @@
-#include "vulkan_simplified/renderer/pipeline_manager.hpp"
+#include "vks/renderer/pipeline_manager.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/shader_compiler/shader_compiler.hpp"
-#include "vulkan_simplified/types.hpp"
-#include "vulkan_simplified/mesh.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/shader_compiler/shader_compiler.hpp"
+#include "vks/types.hpp"
+#include "vks/mesh.hpp"
 
 #include <cstdint>
 #include <cstring>

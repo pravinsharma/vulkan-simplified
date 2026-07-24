@@ -1,4 +1,4 @@
-target_sources(vulkan_simplified PRIVATE
+target_sources(vks PRIVATE
     sdl_window.cpp
     vulkan_context.cpp
     vulkan_utils.cpp

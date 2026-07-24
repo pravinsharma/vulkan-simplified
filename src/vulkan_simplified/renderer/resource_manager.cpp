@@ -1,10 +1,10 @@
-#include "vulkan_simplified/renderer/resource_manager.hpp"
+#include "vks/renderer/resource_manager.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/material.hpp"
-#include "vulkan_simplified/mesh.hpp"
-#include "vulkan_simplified/texture.hpp"
-#include "vulkan_simplified/types.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/material.hpp"
+#include "vks/mesh.hpp"
+#include "vks/texture.hpp"
+#include "vks/types.hpp"
 
 #include <algorithm>
 #include <bit>

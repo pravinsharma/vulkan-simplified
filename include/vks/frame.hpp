@@ -6,10 +6,10 @@
 #include <span>
 #include <vector>
 
-#include "vulkan_simplified/camera.hpp"
-#include "vulkan_simplified/material.hpp"
-#include "vulkan_simplified/scene_entity.hpp"
-#include "vulkan_simplified/types.hpp"
+#include "vks/camera.hpp"
+#include "vks/material.hpp"
+#include "vks/scene_entity.hpp"
+#include "vks/types.hpp"
 
 namespace vks {
 

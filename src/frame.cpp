@@ -1,11 +1,11 @@
-#include "vulkan_simplified/frame.hpp"
+#include "vks/frame.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/material.hpp"
-#include "vulkan_simplified/scene_entity.hpp"
-#include "vulkan_simplified/texture.hpp"
-#include "vulkan_simplified/types.hpp"
-#include "vulkan_simplified/renderer/renderer.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/material.hpp"
+#include "vks/scene_entity.hpp"
+#include "vks/texture.hpp"
+#include "vks/types.hpp"
+#include "vks/renderer/renderer.hpp"
 
 #include <stdexcept>
 

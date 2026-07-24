@@ -1,4 +1,4 @@
-#include "vulkan_simplified/shader_compiler/shader_compiler.hpp"
+#include "vks/shader_compiler/shader_compiler.hpp"
 
 #include <algorithm>
 #include <cstdint>

@@ -1,4 +1,4 @@
-#include "vulkan_simplified/debug.hpp"
+#include "vks/debug.hpp"
 
 #include <algorithm>
 #include <mutex>

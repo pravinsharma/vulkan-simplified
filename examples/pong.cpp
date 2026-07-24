@@ -1,4 +1,4 @@
-#include <vulkan_simplified/vulkan_simplified.hpp>
+#include <vks/vks.hpp>
 #include <cmath>
 #include <algorithm>
 

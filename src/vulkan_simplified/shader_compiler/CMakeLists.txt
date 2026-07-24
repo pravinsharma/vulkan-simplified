@@ -1,3 +1,3 @@
-target_sources(vulkan_simplified PRIVATE
+target_sources(vks PRIVATE
     shader_compiler.cpp
 )

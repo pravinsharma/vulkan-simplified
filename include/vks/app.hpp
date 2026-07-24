@@ -7,9 +7,9 @@
 #include <string>
 #include <vector>
 
-#include "vulkan_simplified/camera.hpp"
-#include "vulkan_simplified/frame.hpp"
-#include "vulkan_simplified/scene_entity.hpp"
+#include "vks/camera.hpp"
+#include "vks/frame.hpp"
+#include "vks/scene_entity.hpp"
 
 namespace vks {
 

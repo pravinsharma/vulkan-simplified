@@ -1,4 +1,4 @@
-#include "vulkan_simplified/mesh.hpp"
+#include "vks/mesh.hpp"
 
 #include <algorithm>
 #include <array>

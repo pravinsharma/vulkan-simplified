@@ -1,7 +1,7 @@
-#include "vulkan_simplified/backend/vulkan_context.hpp"
+#include "vks/backend/vulkan_context.hpp"
 
-#include "vulkan_simplified/backend/sdl_window.hpp"
-#include "vulkan_simplified/backend/vulkan_utils.hpp"
+#include "vks/backend/sdl_window.hpp"
+#include "vks/backend/vulkan_utils.hpp"
 
 #include <SDL3/SDL_vulkan.h>
 #include <vulkan/vulkan.h>

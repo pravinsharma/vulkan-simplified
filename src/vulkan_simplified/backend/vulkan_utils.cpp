@@ -1,4 +1,4 @@
-#include "vulkan_simplified/backend/vulkan_utils.hpp"
+#include "vks/backend/vulkan_utils.hpp"
 
 #include <vulkan/vulkan.h>
 

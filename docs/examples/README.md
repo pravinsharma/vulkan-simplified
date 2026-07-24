@@ -5,7 +5,7 @@
 Minimal draw call. No textures, no camera movement.
 
 ```cpp
-#include <vulkan_simplified/vulkan_simplified.hpp>
+#include <vks/vks.hpp>
 using namespace vks;
 
 int main() {
@@ -95,7 +95,7 @@ Material pbr = Material::builder()
 Self-playing Pong demo using two paddles and a ball. Demonstrates entities, transforms, `DrawCall` tint overrides, and manual per-frame updates.
 
 ```cpp
-#include <vulkan_simplified/vulkan_simplified.hpp>
+#include <vks/vks.hpp>
 #include <algorithm>
 
 using namespace vks;

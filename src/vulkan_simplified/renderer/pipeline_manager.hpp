@@ -6,8 +6,8 @@
 #include <utility>
 #include <unordered_map>
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/types.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/types.hpp"
 
 namespace vks::renderer {
 

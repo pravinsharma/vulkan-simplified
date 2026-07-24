@@ -1,4 +1,4 @@
-target_sources(vulkan_simplified PRIVATE
+target_sources(vks PRIVATE
     app.cpp
     camera.cpp
     debug.cpp
@@ -9,11 +9,11 @@ target_sources(vulkan_simplified PRIVATE
     texture.cpp
     error.cpp
     types.cpp
-    vulkan_simplified/render_graph.cpp
-    vulkan_simplified/post_process.cpp
+    vks/render_graph.cpp
+    vks/post_process.cpp
 )
 
-add_subdirectory(vulkan_simplified/backend)
-add_subdirectory(vulkan_simplified/renderer)
-add_subdirectory(vulkan_simplified/shader_compiler)
-add_subdirectory(vulkan_simplified/assets)
+add_subdirectory(vks/backend)
+add_subdirectory(vks/renderer)
+add_subdirectory(vks/shader_compiler)
+add_subdirectory(vks/assets)

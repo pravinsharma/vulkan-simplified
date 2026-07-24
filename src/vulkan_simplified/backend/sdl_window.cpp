@@ -1,4 +1,4 @@
-#include "vulkan_simplified/backend/sdl_window.hpp"
+#include "vks/backend/sdl_window.hpp"
 
 #include <SDL3/SDL.h>
 #include <SDL3/SDL_vulkan.h>

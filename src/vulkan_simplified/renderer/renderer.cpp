@@ -1,14 +1,14 @@
-#include "vulkan_simplified/renderer/renderer.hpp"
+#include "vks/renderer/renderer.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/backend/vulkan_utils.hpp"
-#include "vulkan_simplified/debug.hpp"
-#include "vulkan_simplified/material.hpp"
-#include "vulkan_simplified/mesh.hpp"
-#include "vulkan_simplified/scene_entity.hpp"
-#include "vulkan_simplified/shader_compiler/shader_compiler.hpp"
-#include "vulkan_simplified/texture.hpp"
-#include "vulkan_simplified/types.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/backend/vulkan_utils.hpp"
+#include "vks/debug.hpp"
+#include "vks/material.hpp"
+#include "vks/mesh.hpp"
+#include "vks/scene_entity.hpp"
+#include "vks/shader_compiler/shader_compiler.hpp"
+#include "vks/texture.hpp"
+#include "vks/types.hpp"
 
 #include <cstdint>
 #include <cstring>

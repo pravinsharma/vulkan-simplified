@@ -1,10 +1,10 @@
-#include "vulkan_simplified/app.hpp"
+#include "vks/app.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/backend/sdl_window.hpp"
-#include "vulkan_simplified/camera.hpp"
-#include "vulkan_simplified/frame.hpp"
-#include "vulkan_simplified/renderer/renderer.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/backend/sdl_window.hpp"
+#include "vks/camera.hpp"
+#include "vks/frame.hpp"
+#include "vks/renderer/renderer.hpp"
 
 #include <SDL3/SDL.h>
 #include <stdexcept>

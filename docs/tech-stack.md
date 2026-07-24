@@ -29,7 +29,7 @@
 
 - **Shaderc** (via `unofficial-shaderc` CMake package) — runtime GLSL/HLSL → SPIR-V
 - Hot-reload: file watcher detects `.vert`, `.frag`, `.comp` changes and recompiles automatically
-- Cached by content hash in `~/.cache/vulkan-simplified/shaders/`
+- Cached by content hash in `~/.cache/vks/shaders/`
 - MSL path available through `dxc` fallback for macOS
 
 ## Build System
@@ -37,7 +37,7 @@
 - **CMake >= 3.24**
 - **vcpkg** — dependency management via `vcpkg.json`
 - Environment variables: `VCPKG_ROOT`, `VULKAN_SDK`
-- Install prefix: GNU standard layout (`lib/cmake/vulkan-simplified/`)
+- Install prefix: GNU standard layout (`lib/cmake/vks/`)
 
 ## Testing
 

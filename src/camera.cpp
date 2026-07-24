@@ -1,4 +1,4 @@
-#include "vulkan_simplified/camera.hpp"
+#include "vks/camera.hpp"
 
 #include <cmath>
 #include <stdexcept>

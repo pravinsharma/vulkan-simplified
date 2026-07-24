@@ -50,7 +50,7 @@ When using vcpkg, the `vcpkg.json` manifest handles transitive dependencies auto
 {
   "name": "my-app",
   "dependencies": [
-    "vulkan-simplified"
+    "vks"
   ]
 }
 ```
@@ -58,7 +58,7 @@ When using vcpkg, the `vcpkg.json` manifest handles transitive dependencies auto
 ### Minimal Example
 
 ```cpp
-#include <vulkan_simplified/vulkan_simplified.hpp>
+#include <vks/vks.hpp>
 
 using namespace vks;
 
@@ -428,7 +428,7 @@ layout(set = 0, binding = 5) uniform samplerCube envMap;
 1. File watcher detects `.vert`, `.frag`, `.comp` change
 2. Library parses for `binding = N` uniforms and `location = N` attributes
 3. Compiles to SPIR-V via `glslang` (GLSL) or `dxc` (HLSL/MSL)
-4. Caches compiled binary by content hash in `~/.cache/vulkan-simplified/shaders/`
+4. Caches compiled binary by content hash in `~/.cache/vks/shaders/`
 
 You do not need to invoke any compiler manually. Shader paths in `Material::builder()` are strings; the library resolves them at runtime.
 
@@ -645,7 +645,7 @@ The render graph manages automatic subpass layout, attachment aliasing, and reso
 ### Basic Setup
 
 ```cpp
-#include <vulkan_simplified/render_graph.hpp>
+#include <vks/render_graph.hpp>
 
 using namespace vks::renderer;
 
@@ -715,7 +715,7 @@ app.onResize([&](int w, int h) {
 ### Bloom
 
 ```cpp
-#include <vulkan_simplified/post_process.hpp>
+#include <vks/post_process.hpp>
 
 vks::renderer::BloomPass::Config bloomCfg;
 bloomCfg.threshold = 1.0f;

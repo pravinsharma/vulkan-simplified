@@ -6,15 +6,15 @@
 #include <span>
 #include <vector>
 
-#include "vulkan_simplified/material.hpp"
-#include "vulkan_simplified/mesh.hpp"
-#include "vulkan_simplified/scene_entity.hpp"
-#include "vulkan_simplified/frame.hpp"
-#include "vulkan_simplified/types.hpp"
+#include "vks/material.hpp"
+#include "vks/mesh.hpp"
+#include "vks/scene_entity.hpp"
+#include "vks/frame.hpp"
+#include "vks/types.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/renderer/resource_manager.hpp"
-#include "vulkan_simplified/renderer/pipeline_manager.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/renderer/resource_manager.hpp"
+#include "vks/renderer/pipeline_manager.hpp"
 
 namespace vks::renderer {
 

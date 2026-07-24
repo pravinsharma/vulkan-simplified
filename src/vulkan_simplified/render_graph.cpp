@@ -1,7 +1,7 @@
-#include "vulkan_simplified/render_graph.hpp"
+#include "vks/render_graph.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
-#include "vulkan_simplified/backend/vulkan_utils.hpp"
+#include "vks/backend/vulkan_context.hpp"
+#include "vks/backend/vulkan_utils.hpp"
 
 #include <algorithm>
 #include <cstdint>

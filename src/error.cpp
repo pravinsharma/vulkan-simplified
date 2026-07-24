@@ -1,4 +1,4 @@
-#include "vulkan_simplified/error.hpp"
+#include "vks/error.hpp"
 
 namespace vks {
 

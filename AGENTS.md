@@ -4,7 +4,7 @@ Rules and conventions for Kilo-assisted development in this repository.
 
 ## Project
 
-- Name: `vulkan-simplified`
+- Name: `vks`
 - Language: C++20
 - Build system: CMake >= 3.24
 - Graphics API target: Vulkan 1.3
@@ -42,7 +42,7 @@ cmake --build build --target vks_docs
 ## Project structure
 
 ```
-include/vulkan_simplified/   public headers (API surface)
+include/vks/   public headers (API surface)
 src/                          implementation (renderer, backend, scene graph)
 tests/                        unit and integration tests
 shaders/                      runtime-loadable shader sources

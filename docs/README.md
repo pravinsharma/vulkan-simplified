@@ -12,7 +12,7 @@ A high-level graphics abstraction that hides all Vulkan complexity. Developers d
 ## Quick Example
 
 ```cpp
-#include <vulkan_simplified/vulkan_simplified.hpp>
+#include <vks/vks.hpp>
 
 using namespace vks;
 
@@ -52,11 +52,11 @@ That is the entire rendering loop. The library manages the render pass, descript
 ### CMake
 
 ```bash
-git submodule add https://github.com/your-org/vulkan-simplified third_party/vulkan-simplified
+git submodule add https://github.com/your-org/vks third_party/vks
 ```
 
 ```cmake
-add_subdirectory(third_party/vulkan-simplified)
+add_subdirectory(third_party/vks)
 target_link_libraries(MyApp PRIVATE VulkanSimplified)
 ```
 

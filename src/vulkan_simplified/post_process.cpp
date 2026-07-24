@@ -1,6 +1,6 @@
-#include "vulkan_simplified/post_process.hpp"
+#include "vks/post_process.hpp"
 
-#include "vulkan_simplified/backend/vulkan_context.hpp"
+#include "vks/backend/vulkan_context.hpp"
 
 #include <algorithm>
 #include <cstdint>

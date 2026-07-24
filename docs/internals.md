@@ -42,7 +42,7 @@ VulkanBackend (swapchain, memory, queues, sync)
 - Source watcher detects `.vert` / `.frag` changes.
 - Parsed for `binding = N` uniforms and `location = N` vertex attributes.
 - Compiles to SPIR-V via `glslang` or `dxc` (HLSL/MSL paths).
-- Caches by hash in `~/.cache/vulkan-simplified/shaders/`.
+- Caches by hash in `~/.cache/vks/shaders/`.
 
 ## Memory Model
 

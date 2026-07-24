@@ -3,7 +3,7 @@
 #include <memory>
 #include <vector>
 
-#include "vulkan_simplified/render_graph.hpp"
+#include "vks/render_graph.hpp"
 
 #include <vulkan/vulkan.h>
 

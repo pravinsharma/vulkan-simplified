@@ -6,7 +6,7 @@
 #include <string>
 #include <vector>
 
-#include "vulkan_simplified/types.hpp"
+#include "vks/types.hpp"
 
 namespace vks {
 

@@ -12,15 +12,15 @@ find_package(Vulkan REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(unofficial-shaderc CONFIG REQUIRED)
 
-add_library(vulkan_simplified STATIC)
-target_include_directories(vulkan_simplified PUBLIC
+add_library(vks STATIC)
+target_include_directories(vks PUBLIC
     $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/include>
     $<INSTALL_INTERFACE:include>
 )
-target_include_directories(vulkan_simplified PRIVATE
+target_include_directories(vks PRIVATE
     ${CMAKE_CURRENT_SOURCE_DIR}/src
 )
-target_link_libraries(vulkan_simplified PUBLIC SDL3::SDL3 Vulkan::Vulkan glm::glm unofficial::shaderc::shaderc)
+target_link_libraries(vks PUBLIC SDL3::SDL3 Vulkan::Vulkan glm::glm unofficial::shaderc::shaderc)
 
 enable_testing()
 
@@ -32,7 +32,7 @@ if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/docs/CMakeLists.txt")
     add_subdirectory(docs)
 endif()
 
-set_target_properties(vulkan_simplified PROPERTIES
+set_target_properties(vks PROPERTIES
     VERSION ${PROJECT_VERSION}
     SOVERSION 0
 )
@@ -55,38 +55,38 @@ add_custom_target(vks_docs
 
 include(GNUInstallDirs)
 
-install(TARGETS vulkan_simplified
-    EXPORT vulkan-simplified-targets
+install(TARGETS vks
+    EXPORT vks-targets
     RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
     LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
     ARCHIVE DESTINATION ${CMAKE_INSTALL_LIBDIR}
     INCLUDES DESTINATION ${CMAKE_INSTALL_INCLUDEDIR}
 )
 
-install(DIRECTORY include/vulkan_simplified DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
+install(DIRECTORY include/vks DESTINATION ${CMAKE_INSTALL_INCLUDEDIR})
 
-install(EXPORT vulkan-simplified-targets
-    FILE vulkan-simplified-targets.cmake
+install(EXPORT vks-targets
+    FILE vks-targets.cmake
     NAMESPACE vks::
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vulkan-simplified
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vks
 )
 
 include(CMakePackageConfigHelpers)
 
 configure_package_config_file(
-    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/vulkan_simplified-config.cmake.in"
-    "${CMAKE_CURRENT_BINARY_DIR}/vulkan_simplified-config.cmake"
-    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vulkan-simplified
+    "${CMAKE_CURRENT_SOURCE_DIR}/cmake/vks-config.cmake.in"
+    "${CMAKE_CURRENT_BINARY_DIR}/vks-config.cmake"
+    INSTALL_DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vks
 )
 
 write_basic_package_version_file(
-    "${CMAKE_CURRENT_BINARY_DIR}/vulkan_simplified-config-version.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/vks-config-version.cmake"
     VERSION ${PROJECT_VERSION}
     COMPATIBILITY SameMajorVersion
 )
 
 install(FILES
-    "${CMAKE_CURRENT_BINARY_DIR}/vulkan_simplified-config.cmake"
-    "${CMAKE_CURRENT_BINARY_DIR}/vulkan_simplified-config-version.cmake"
-    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vulkan-simplified
+    "${CMAKE_CURRENT_BINARY_DIR}/vks-config.cmake"
+    "${CMAKE_CURRENT_BINARY_DIR}/vks-config-version.cmake"
+    DESTINATION ${CMAKE_INSTALL_LIBDIR}/cmake/vks
 )
