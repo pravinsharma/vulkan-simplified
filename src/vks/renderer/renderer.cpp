@@ -145,7 +145,6 @@ void ForwardRenderer::destroy() {
     auto* dev = ctx_->device();
 
     for (auto& m : pimpl->materials) {
-        if (m.gpuPipeline) vkDestroyPipeline(dev, m.gpuPipeline, nullptr);
         for (auto& tx : m.gpuTextures) pimpl->resourceManager->destroyTexture(tx);
     }
     pimpl->materials.clear();

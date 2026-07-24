@@ -27,7 +27,23 @@ ResourceManager::ResourceManager(backend::VulkanContext& ctx)
 {
 }
 
-ResourceManager::~ResourceManager() = default;
+ResourceManager::~ResourceManager() {
+    if (!pimpl) return;
+    auto* dev = pimpl->ctx.device();
+    for (auto& tex : pimpl->ownedTextures) {
+        if (tex.sampler)   vkDestroySampler(dev, tex.sampler, nullptr);
+        if (tex.imageView) vkDestroyImageView(dev, tex.imageView, nullptr);
+        if (tex.image)     vkDestroyImage(dev, tex.image, nullptr);
+        if (tex.memory)    vkFreeMemory(dev, tex.memory, nullptr);
+    }
+    for (auto& mesh : pimpl->ownedMeshes) {
+        if (mesh.vertexBuffer.buffer) vkDestroyBuffer(dev, mesh.vertexBuffer.buffer, nullptr);
+        if (mesh.vertexBuffer.memory) vkFreeMemory(dev, mesh.vertexBuffer.memory, nullptr);
+        if (mesh.indexBuffer.buffer) vkDestroyBuffer(dev, mesh.indexBuffer.buffer, nullptr);
+        if (mesh.indexBuffer.memory) vkFreeMemory(dev, mesh.indexBuffer.memory, nullptr);
+    }
+    destroyFrameData();
+}
 
 GpuTexture ResourceManager::uploadTexture(const class Texture& texture) {
     auto& ctx = pimpl->ctx;
