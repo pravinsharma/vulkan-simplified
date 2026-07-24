@@ -1,4 +1,5 @@
 #include <vks/vks.hpp>
+#include <SDL3/SDL.h>
 #include <cmath>
 #include <algorithm>
 #include <vector>
@@ -124,21 +125,26 @@ int main() {
         cam.lookAt({0.0f, 0.0f, 12.0f}, {0.0f, 0.0f, 0.0f}, {0.0f, 1.0f, 0.0f});
 
         app.run([&](Frame& frame, float dt) {
+            const bool* keys = SDL_GetKeyboardState(nullptr);
+
             float halfTableH = TABLE_H * 0.5f;
             float halfPaddle = PADDLE_H * 0.5f;
 
-            left.targetY = std::clamp(ball.y, -halfTableH + halfPaddle, halfTableH - halfPaddle);
-            float leftDiff = left.targetY - left.y;
-            if (std::abs(leftDiff) > 0.01f) {
-                left.y += std::copysign(std::min(std::abs(leftDiff), left.speed * dt), leftDiff);
+            if (keys[SDL_SCANCODE_W]) {
+                left.y = std::clamp(left.y + left.speed * dt, -halfTableH + halfPaddle, halfTableH - halfPaddle);
             }
-            scene.get(left.id).transform().position.y = left.y;
+            if (keys[SDL_SCANCODE_S]) {
+                left.y = std::clamp(left.y - left.speed * dt, -halfTableH + halfPaddle, halfTableH - halfPaddle);
+            }
 
-            right.targetY = std::clamp(ball.y, -halfTableH + halfPaddle, halfTableH - halfPaddle);
-            float rightDiff = right.targetY - right.y;
-            if (std::abs(rightDiff) > 0.01f) {
-                right.y += std::copysign(std::min(std::abs(rightDiff), right.speed * dt), rightDiff);
+            if (keys[SDL_SCANCODE_UP]) {
+                right.y = std::clamp(right.y + right.speed * dt, -halfTableH + halfPaddle, halfTableH - halfPaddle);
             }
+            if (keys[SDL_SCANCODE_DOWN]) {
+                right.y = std::clamp(right.y - right.speed * dt, -halfTableH + halfPaddle, halfTableH - halfPaddle);
+            }
+
+            scene.get(left.id).transform().position.y = left.y;
             scene.get(right.id).transform().position.y = right.y;
 
             ball.x += ball.vx * dt;
