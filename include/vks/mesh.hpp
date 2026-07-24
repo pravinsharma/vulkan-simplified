@@ -30,14 +30,17 @@ public:
     std::span<const uint32_t> indices() const;
 
     Mesh() = default;
-    ~Mesh();
+    ~Mesh() = default;
     Mesh(Mesh&&) noexcept = default;
     Mesh& operator=(Mesh&&) noexcept = default;
     Mesh(const Mesh&) = delete;
     Mesh& operator=(const Mesh&) = delete;
 
 private:
-    struct Impl;
+    struct Impl {
+        std::vector<Vertex> vertices;
+        std::vector<uint32_t> indices;
+    };
     std::unique_ptr<Impl> pimpl;
 };
 

@@ -41,6 +41,28 @@ Make Vulkan usable for everyday game and graphics developers without exposing dr
 - Full CI on Windows / Linux / macOS
 - User guide, API reference, and sample projects
 
+## Example Roadmap (Build-Up)
+
+### Phase 1 — Hello Triangle
+- Single fullscreen quad with a solid color
+- Verifies `App`, `Material`, `Frame` lifecycle
+
+### Phase 2 — Moving Marker
+- One mesh entity updated via model matrix each frame
+- Verifies camera + transform updates
+
+### Phase 3 — Interactive 2D Canvas (turtle graphics)
+- Orthographic-style camera setup
+- Command area below the canvas with on-screen text built from 3D quads
+- Turtle state machine parsing: `forward 100`, `right 90`, `color 1 0.3 0`, `reset`
+- Dynamic line-segment meshes drawn per command, preserving scene state across frames
+- Implemented in `examples/turtle.cpp` (see `Turtle`, `execute()`, inline bitmap text callbacks)
+
+### Phase 4 — UI Overlay
+- Help panel toggled via Escape, rendered as scene entities  
+- Blinking command cursor
+- "Text handling" demonstrated by encoding characters as colored dot-matrix quads in world space, using the same material/draw system
+
 ## Backlog
 
 - Editor/tooling integration (Unity / Unreal exporters)

@@ -150,7 +150,6 @@ void ForwardRenderer::destroy() {
     pimpl->materials.clear();
     pimpl->meshCache.clear();
 
-    pimpl->resourceManager->destroyBuffer(pimpl->perFrameUbo);
     if (pimpl->perFrameDescriptorSet) vkFreeDescriptorSets(dev, pimpl->descPool, 1, &pimpl->perFrameDescriptorSet);
     if (pimpl->descPool) vkDestroyDescriptorPool(dev, pimpl->descPool, nullptr);
 }

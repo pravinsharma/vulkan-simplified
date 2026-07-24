@@ -13,11 +13,6 @@
 
 namespace vks {
 
-struct Mesh::Impl {
-    std::vector<Vertex> vertices;
-    std::vector<uint32_t> indices;
-};
-
 namespace {
 
 void parseOBJ(std::istream& in, std::vector<Vertex>& outVertices, std::vector<uint32_t>& outIndices) {
@@ -75,8 +70,6 @@ void parseOBJ(std::istream& in, std::vector<Vertex>& outVertices, std::vector<ui
 }
 
 }
-
-Mesh::~Mesh() = default;
 
 Mesh Mesh::fromVertices(std::span<const Vertex> vertices) {
     Mesh mesh;
