@@ -34,7 +34,6 @@ CMakeCache.txt
 cmake_install.cmake
 install_manifest.txt
 Makefile
-*.cmake
 !cmake/*.cmake.in
 
 # Test outputs
@@ -51,3 +50,6 @@ CTestTestfile.cmake
 *.tlog
 *.lastbuildstate
 *.recipe
+
+# CMake generated files
+CMakeFiles/
